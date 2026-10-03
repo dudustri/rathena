@@ -11012,7 +11012,10 @@ void clif_parse_LoadEndAck(int32 fd,map_session_data *sd)
 			npc_event_dequeue(sd);
 	}
 
-	if( sd->state.changemap ) {// restore information that gets lost on map-change
+	// RagnaDuds: the player's settings (party invitations, equipment window, call/summon, pet and homunculus
+	// autofeed, costumes) are sent once at login only. Sent on every map change, the client printed a chat line
+	// for each of them every time.
+	if( sd->state.changemap && sd->state.connect_new ) {
 		clif_partyinvitationstate( *sd );
 #if PACKETVER >= 20070918
 		clif_equipcheckbox( *sd );
@@ -11038,7 +11041,9 @@ void clif_parse_LoadEndAck(int32 fd,map_session_data *sd)
 #if PACKETVER >= 20230419
 		clif_configuration( sd, CONFIG_DISABLE_SHOWCOSTUMES, sd->status.disable_showcostumes );
 #endif
+	}
 
+	if( sd->state.changemap ) {// restore information that gets lost on map-change
 		clif_reputation_list( *sd );
 
 		if (sd->guild && battle_config.guild_notice_changemap == 1){
