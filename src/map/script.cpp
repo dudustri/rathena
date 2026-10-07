@@ -16374,6 +16374,20 @@ BUILDIN_FUNC(npcstop)
 /**
  * getlook(<type>{,<char_id>})
  **/
+/// RagnaDuds: highest cloth colour the attached player's class can use without crashing the client.
+/// getclothmax() -> <int>
+BUILDIN_FUNC(getclothmax)
+{
+	map_session_data* sd;
+
+	if( !script_rid2sd( sd ) ){
+		script_pushint( st, 0 );
+		return SCRIPT_CMD_SUCCESS;
+	}
+	script_pushint( st, pc_cloth_color_max( sd ) );
+	return SCRIPT_CMD_SUCCESS;
+}
+
 BUILDIN_FUNC(getlook)
 {
 	int32 type,val;
@@ -28219,6 +28233,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(chatmes,"s?"), // [Jey]
 	BUILDIN_DEF(mobcount,"ss"),
 	BUILDIN_DEF(getlook,"i?"),
+	BUILDIN_DEF(getclothmax,""), // RagnaDuds
 	BUILDIN_DEF(getsavepoint,"i?"),
 	BUILDIN_DEF(npcspeed,"i?"),
 	BUILDIN_DEF(npcwalkto,"ii?"),

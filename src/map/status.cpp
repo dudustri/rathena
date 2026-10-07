@@ -9428,7 +9428,7 @@ void status_set_viewdata(block_list *bl, int32 class_)
 				sd->vd.look[LOOK_HEAD_BOTTOM] = sd->status.head_bottom;
 				sd->vd.look[LOOK_HAIR] = cap_value(sd->status.hair, MIN_HAIR_STYLE, MAX_HAIR_STYLE);
 				sd->vd.look[LOOK_HAIR_COLOR] = cap_value(sd->status.hair_color, MIN_HAIR_COLOR, MAX_HAIR_COLOR);
-				sd->vd.look[LOOK_CLOTHES_COLOR] = cap_value(sd->status.clothes_color, MIN_CLOTH_COLOR, MAX_CLOTH_COLOR);
+				sd->vd.look[LOOK_CLOTHES_COLOR] = cap_value(sd->status.clothes_color, MIN_CLOTH_COLOR, pc_cloth_color_max(sd)); // RagnaDuds: per class
 				sd->vd.look[LOOK_BODY2] = sd->status.body;
 				sd->vd.sex = sd->status.sex;
 				sd->vd.look[LOOK_ROBE] = sd->status.robe;
@@ -14092,7 +14092,7 @@ int32 status_change_end( block_list* bl, enum sc_type type, int32 tid ){
 			sd->update_look( LOOK_SHIELD );
 			clif_changelook(bl,LOOK_WEAPON,sd->vd.look[LOOK_WEAPON]);
 			clif_changelook(bl,LOOK_SHIELD,sd->vd.look[LOOK_SHIELD]);
-			clif_changelook(bl,LOOK_CLOTHES_COLOR,cap_value(sd->status.clothes_color,0,battle_config.max_cloth_color));
+			clif_changelook(bl,LOOK_CLOTHES_COLOR,cap_value(sd->status.clothes_color,0,pc_cloth_color_max(sd))); // RagnaDuds: per class
 			clif_changelook( bl, LOOK_BODY2, sd->status.body );
 		}
 	}

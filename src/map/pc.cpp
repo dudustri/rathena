@@ -11109,6 +11109,58 @@ void pc_equiplookall(map_session_data *sd)
 /*==========================================
  * Tell client player sd has change look (hair,equip...)
  *------------------------------------------*/
+/**
+ * RagnaDuds: highest cloth colour (body palette) the client has for the player's current look.
+ * Counted from the 2026 client's data/palette/몸 files: a colour above this makes the client crash
+ * ("CPaletteRes ... cannot find ..._N.pal"). Never above max_cloth_color.
+ */
+int32 pc_cloth_color_max( map_session_data* sd ){
+	uint64 c = sd->class_;
+	int32 max;
+
+	if( c & ( JOBL_THIRD | JOBL_FOURTH ) ){
+		max = 7; // 3rd, 4th, Expanded Super Novice, Star Emperor, Soul Reaper
+		// Royal Guard on a gryphon only has 3
+		if( ( ( c & MAPID_THIRDMASK ) == ( MAPID_ROYAL_GUARD & MAPID_THIRDMASK ) || ( c & MAPID_THIRDMASK ) == ( MAPID_ROYAL_GUARD_T & MAPID_THIRDMASK ) ) && pc_isriding( sd ) )
+			max = 3;
+	}else{
+		switch( c & MAPID_FIRSTMASK ){
+			case MAPID_NOVICE:
+				max = ( c & JOBL_2 ) ? 7 : 8; // Super Novice / Novice
+				break;
+			case MAPID_TAEKWON:
+			case MAPID_GUNSLINGER:
+			case MAPID_NINJA:
+			case MAPID_SUMMONER:
+				max = 7; // and their 2nd classes
+				break;
+			default:
+				if( !( c & JOBL_2 ) )
+					max = 4; // 1st classes
+				else if( c & JOBL_UPPER )
+					max = 3; // transcendent 2nd classes
+				else{
+					switch( c & MAPID_SECONDMASK ){
+						case MAPID_CRUSADER:
+						case MAPID_MONK:
+						case MAPID_SAGE:
+						case MAPID_ROGUE:
+						case MAPID_ASSASSIN:
+						case MAPID_BARDDANCER:
+							max = 3;
+							break;
+						default:
+							max = 4; // Knight, Priest, Wizard, Blacksmith, Hunter, Alchemist
+							break;
+					}
+				}
+				break;
+		}
+	}
+
+	return min( max, battle_config.max_cloth_color );
+}
+
 void pc_changelook(map_session_data *sd,int32 type,int32 val) {
 	nullpo_retv(sd);
 
@@ -11149,7 +11201,7 @@ void pc_changelook(map_session_data *sd,int32 type,int32 val) {
 		}
 		break;
 	case LOOK_CLOTHES_COLOR:	//Use the battle_config limits! [Skotlex]
-		val = cap_value(val, MIN_CLOTH_COLOR, MAX_CLOTH_COLOR);
+		val = cap_value(val, MIN_CLOTH_COLOR, pc_cloth_color_max(sd)); // RagnaDuds: per class
 
 		sd->status.clothes_color = val;
 		break;
